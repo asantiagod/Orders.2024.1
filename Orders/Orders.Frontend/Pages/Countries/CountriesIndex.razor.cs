@@ -83,6 +83,13 @@ namespace Orders.Frontend.Pages.Countries
             totalPages = responseHttp.Response;
         }
 
+        private async Task FilterCallback(string filter)
+        {
+            Console.WriteLine($"CountriesIndex.FilterCallback(): Filter = {filter}");
+            Filter = filter;
+            await ApplyFilterAsync();
+        }
+
         private async Task CleanFilterAsync()
         {
             Filter = string.Empty;
@@ -92,7 +99,7 @@ namespace Orders.Frontend.Pages.Countries
         private async Task ApplyFilterAsync()
         {
             int page = 1;
-            await LoadAsync(page);
+            //await LoadAsync(page);
             await SelectedPageAsync(page);
         }
 
