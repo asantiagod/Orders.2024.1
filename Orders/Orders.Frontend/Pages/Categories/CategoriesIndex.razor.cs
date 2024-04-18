@@ -1,8 +1,8 @@
-﻿using System.Net;
-using CurrieTechnologies.Razor.SweetAlert2;
+﻿using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Components;
 using Orders.Frontend.Repositories;
 using Orders.Shared.Entities;
+using System.Net;
 
 namespace Orders.Frontend.Pages.Categories
 {
@@ -17,6 +17,7 @@ namespace Orders.Frontend.Pages.Categories
 
         [Parameter, SupplyParameterFromQuery] public string Page { get; set; } = string.Empty;
         [Parameter, SupplyParameterFromQuery] public string Filter { get; set; } = string.Empty;
+        [Parameter, SupplyParameterFromQuery] public string RecordsNumber { get; set; } = string.Empty;
 
         public List<Category>? Categories { get; set; }
 
@@ -36,6 +37,11 @@ namespace Orders.Frontend.Pages.Categories
             await LoadAsync(page);
         }
 
+        private async Task SelectCallback()
+        {
+            await LoadAsync();
+        }
+
         private async Task LoadAsync(int page = 1)
         {
             var ok = await LoadListAsync(page);
@@ -47,10 +53,17 @@ namespace Orders.Frontend.Pages.Categories
 
         private async Task<bool> LoadListAsync(int page)
         {
-            var url = $"api/categories/?page={page}";
-            if (!string.IsNullOrEmpty(Filter))
+            string url;
+
+            if (RecordsNumber == "full")
+                url = $"api/categories/full";
+            else
             {
-                url += $"&filter={Filter}";
+                url = $"api/categories/?page={page}";
+                if (!string.IsNullOrEmpty(Filter))
+                    url += $"&filter={Filter}";
+                if (!string.IsNullOrEmpty(RecordsNumber))
+                    url += $"&RecordsNumber={RecordsNumber}";
             }
 
             var responseHttp = await Repository.GetAsync<List<Category>>(url);
@@ -66,11 +79,17 @@ namespace Orders.Frontend.Pages.Categories
 
         private async Task LoadPagesAsync()
         {
+            if (RecordsNumber == "full")
+            {
+                totalPages = 1;
+                return;
+            }
+
             var url = $"api/categories/totalPages";
             if (!string.IsNullOrEmpty(Filter))
-            {
                 url += $"?filter={Filter}";
-            }
+            if (!string.IsNullOrEmpty(RecordsNumber))
+                url += $"?RecordsNumber={RecordsNumber}";
 
             var responseHttp = await Repository.GetAsync<int>(url);
             if (responseHttp.Error)
