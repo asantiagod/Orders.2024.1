@@ -88,6 +88,7 @@ namespace Orders.Frontend.Pages.Countries
             Console.WriteLine($"CountriesIndex.FilterCallback(): Filter = {filter}");
             Filter = filter;
             await ApplyFilterAsync();
+            StateHasChanged();
         }
 
         private async Task CleanFilterAsync()
